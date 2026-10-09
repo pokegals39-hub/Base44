@@ -1,0 +1,33 @@
+name: Importa App Base44
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: 'ID App Base44'
+        required: true
+        type: string
+
+jobs:
+  pull-base44:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configura Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Scarica da Base44
+        run: |
+          npx base44 pull --token ${{ secrets.BASE44_TOKEN }} --app ${{ github.event.inputs.app_id }}
+
+      - name: Salva su GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Importato ID: ${{ github.event.inputs.app_id }}" || echo "Nessuna modifica"
+          git push
